@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using FileMonitoring.Services.Interfaces;
+using FileMonitoring.Models;
 
 namespace FileMonitoring.Controllers
 {
@@ -80,11 +81,78 @@ namespace FileMonitoring.Controllers
                 return StatusCode(500, new { erro = "Erro interno ao processar arquivo" });
             }
         }
-    }
 
-    public class ProcessarRequest
-    {
-        public string Conteudo { get; set; } = string.Empty;
-        public string NomeArquivo { get; set; } = "arquivo.txt";
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            try
+            {
+                var arquivo = await _service.ObterPorIdAsync(id);
+
+                if (arquivo == null)
+                {
+                    return NotFound(new { erro = "Arquivo não encontrado" });
+                }
+
+                return Ok(arquivo);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar arquivo {Id}", id);
+                return StatusCode(500, new { erro = "Erro ao buscar arquivo" });
+            }
+        }
+
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> AtualizarStatus(int id, [FromBody] AtualizarStatusRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Status))
+            {
+                return BadRequest(new { erro = "Status é obrigatório" });
+            }
+
+            try
+            {
+                var arquivo = await _service.AtualizarStatusAsync(id, request.Status);
+
+                if (arquivo == null)
+                {
+                    return NotFound(new { erro = "Arquivo não encontrado" });
+                }
+
+                return Ok(arquivo);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Status inválido");
+                return BadRequest(new { erro = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar status do arquivo {Id}", id);
+                return StatusCode(500, new { erro = "Erro ao atualizar status" });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var sucesso = await _service.ExcluirAsync(id);
+
+                if (!sucesso)
+                {
+                    return NotFound(new { erro = "Arquivo não encontrado" });
+                }
+
+                return Ok(new { mensagem = "Arquivo excluído com sucesso" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir arquivo {Id}", id);
+                return StatusCode(500, new { erro = "Erro ao excluir arquivo" });
+            }
+        }
     }
 }

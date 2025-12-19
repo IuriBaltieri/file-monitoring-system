@@ -17,7 +17,7 @@ namespace FileMonitoring.Services
             _db = db;
             _logger = logger;
             _diretorioBackup = Path.Combine(Directory.GetCurrentDirectory(), "backups");
-            
+
             CriarDiretorioBackupSeNaoExistir();
         }
 
@@ -32,31 +32,88 @@ namespace FileMonitoring.Services
         {
             var recepcionados = await _db.Arquivos.CountAsync(a => a.Status == "Recepcionado");
             var naoRecepcionados = await _db.Arquivos.CountAsync(a => a.Status == "Não Recepcionado");
-            
+
             return (recepcionados, naoRecepcionados);
         }
 
         public async Task<Arquivo> ProcessarArquivoAsync(string conteudo, string nomeArquivo)
         {
             ValidarConteudo(conteudo);
-            
+
             var linha = conteudo.Trim();
             var tipoRegistro = ObterTipoRegistro(linha);
-            
-            var arquivo = tipoRegistro == 0 
-                ? ProcessarTipo0(linha) 
+
+            var arquivo = tipoRegistro == 0
+                ? ProcessarTipo0(linha)
                 : ProcessarTipo1(linha);
 
             await RealizarBackupAsync(conteudo, nomeArquivo, arquivo);
             await VerificarDuplicidadeAsync(arquivo);
-            
+
             _db.Arquivos.Add(arquivo);
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Arquivo processado: ID={Id}, Empresa={Empresa}, Status={Status}", 
+            _logger.LogInformation("Arquivo processado: ID={Id}, Empresa={Empresa}, Status={Status}",
                 arquivo.Id, arquivo.Empresa, arquivo.Status);
 
             return arquivo;
+        }
+
+        public async Task<Arquivo?> ObterPorIdAsync(int id)
+        {
+            return await _db.Arquivos.FindAsync(id);
+        }
+
+        public async Task<Arquivo?> AtualizarStatusAsync(int id, string novoStatus)
+        {
+            var arquivo = await _db.Arquivos.FindAsync(id);
+
+            if (arquivo == null)
+            {
+                return null;
+            }
+
+            if (novoStatus != "Recepcionado" && novoStatus != "Não Recepcionado")
+            {
+                throw new ArgumentException("Status inválido. Use 'Recepcionado' ou 'Não Recepcionado'");
+            }
+
+            arquivo.Status = novoStatus;
+            await _db.SaveChangesAsync();
+
+            _logger.LogInformation("Status atualizado: ID={Id}, NovoStatus={NovoStatus}", id, novoStatus);
+
+            return arquivo;
+        }
+
+        public async Task<bool> ExcluirAsync(int id)
+        {
+            var arquivo = await _db.Arquivos.FindAsync(id);
+
+            if (arquivo == null)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(arquivo.CaminhoBackup) && File.Exists(arquivo.CaminhoBackup))
+            {
+                try
+                {
+                    File.Delete(arquivo.CaminhoBackup);
+                    _logger.LogInformation("Backup excluído: {CaminhoBackup}", arquivo.CaminhoBackup);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Não foi possível excluir o backup: {CaminhoBackup}", arquivo.CaminhoBackup);
+                }
+            }
+
+            _db.Arquivos.Remove(arquivo);
+            await _db.SaveChangesAsync();
+
+            _logger.LogInformation("Arquivo excluído: ID={Id}, Empresa={Empresa}", id, arquivo.Empresa);
+
+            return true;
         }
 
         private void ValidarConteudo(string conteudo)
@@ -153,7 +210,7 @@ namespace FileMonitoring.Services
         private DateTime ParsearData(string linha, int inicio, int tamanho)
         {
             var dataString = linha.Substring(inicio, tamanho);
-            
+
             if (string.IsNullOrWhiteSpace(dataString) || dataString.Length != 8)
             {
                 throw new FormatException($"Data inválida: '{dataString}'. Esperado 8 dígitos (AAAAMMDD)");

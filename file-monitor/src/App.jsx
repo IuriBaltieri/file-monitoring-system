@@ -12,6 +12,7 @@ function App() {
   const [loadingDados, setLoadingDados] = useState(true);
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
+  const [editandoId, setEditandoId] = useState(null);
 
   useEffect(() => {
     carregarDados();
@@ -78,6 +79,58 @@ function App() {
     }
   };
 
+  const alternarStatus = async (id, statusAtual) => {
+    const novoStatus = statusAtual === 'Recepcionado' ? 'Não Recepcionado' : 'Recepcionado';
+    
+    try {
+      setEditandoId(id);
+      
+      const res = await fetch(`${API_URL}/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: novoStatus })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.erro || 'Erro ao atualizar status');
+      }
+
+      carregarDados();
+      setSucesso('Status atualizado com sucesso!');
+      setTimeout(() => setSucesso(''), 3000);
+    } catch (err) {
+      setErro(err.message);
+      setTimeout(() => setErro(''), 3000);
+    } finally {
+      setEditandoId(null);
+    }
+  };
+
+  const excluir = async (id, empresa) => {
+    if (!window.confirm(`Deseja realmente excluir o arquivo da empresa ${empresa}?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.erro || 'Erro ao excluir arquivo');
+      }
+
+      carregarDados();
+      setSucesso('Arquivo excluído com sucesso!');
+      setTimeout(() => setSucesso(''), 3000);
+    } catch (err) {
+      setErro(err.message);
+      setTimeout(() => setErro(''), 3000);
+    }
+  };
+
   const total = stats.recepcionados + stats.naoRecepcionados;
   const percRecep = total > 0 ? Math.round((stats.recepcionados / total) * 100) : 0;
   const percNaoRecep = total > 0 ? 100 - percRecep : 0;
@@ -96,7 +149,6 @@ function App() {
       <div className="app">
         <div className="loading-screen">
           <div className="spinner"></div>
-          <p>Carregando...</p>
         </div>
       </div>
     );
@@ -110,6 +162,14 @@ function App() {
       </header>
 
       <div className="container">
+        {/* Alertas Globais */}
+        {erro && (
+          <div className="alert alert-erro global-alert">❌ {erro}</div>
+        )}
+        {sucesso && (
+          <div className="alert alert-sucesso global-alert">✅ {sucesso}</div>
+        )}
+
         <div className="grid">
           <div className="card">
             <h2>Processar Arquivo</h2>
@@ -156,9 +216,6 @@ function App() {
                   Exemplo Tipo 1
                 </button>
               </div>
-
-              {erro && <div className="alert alert-erro">❌ {erro}</div>}
-              {sucesso && <div className="alert alert-sucesso">✅ {sucesso}</div>}
 
               <button type="submit" disabled={loading} className="btn-processar">
                 {loading ? 'Processando...' : 'Processar Arquivo'}
@@ -238,6 +295,7 @@ function App() {
                     <th>Período</th>
                     <th>Sequência</th>
                     <th>Status</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -264,6 +322,25 @@ function App() {
                         <span className={`badge ${arq.status === 'Recepcionado' ? 'badge-ok' : 'badge-erro'}`}>
                           {arq.status}
                         </span>
+                      </td>
+                      <td>
+                        <div className="acoes-buttons">
+                          <button
+                            onClick={() => alternarStatus(arq.id, arq.status)}
+                            disabled={editandoId === arq.id}
+                            className="btn-editar"
+                            title="Alterar status"
+                          >
+                            {editandoId === arq.id ? '...' : '✏️'}
+                          </button>
+                          <button
+                            onClick={() => excluir(arq.id, arq.empresa)}
+                            className="btn-excluir"
+                            title="Excluir arquivo"
+                          >
+                            🗑️
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

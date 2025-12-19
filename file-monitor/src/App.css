@@ -450,3 +450,91 @@ tbody tr:last-child td {
     padding: 8px;
   }
 }
+
+.global-alert {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  z-index: 1000;
+  min-width: 300px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.acoes-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-editar,
+.btn-excluir {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.btn-editar {
+  background: #ffc107;
+}
+
+.btn-editar:hover:not(:disabled) {
+  background: #e0a800;
+  transform: scale(1.1);
+}
+
+.btn-editar:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-excluir {
+  background: #dc3545;
+}
+
+.btn-excluir:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+th:last-child,
+td:last-child {
+  text-align: center;
+  min-width: 120px;
+}
+
+.exemplos button {
+  flex: 1;
+  padding: 10px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.exemplos button:hover:not(:disabled) {
+  background: #218838;
+}
+
+.exemplos button:disabled {
+  background: #90a4ae;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
