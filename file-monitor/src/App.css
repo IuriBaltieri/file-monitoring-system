@@ -147,22 +147,24 @@ textarea {
 .exemplos button {
   flex: 1;
   padding: 10px;
-  background: #f5f6f7;
-  border: 1px solid #dddfe2;
+  background: #6c757d;
+  color: white;
+  border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   transition: background-color 0.2s;
 }
 
 .exemplos button:hover:not(:disabled) {
-  background: #e4e6e9;
+  background: #5a6268;
 }
 
 .exemplos button:disabled {
-  opacity: 0.5;
+  background: #90a4ae;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .btn-processar {
