@@ -1,0 +1,161 @@
+.tabela-container {
+  /* Herda estilos do .card */
+}
+
+.vazio {
+  text-align: center;
+  padding: 60px 20px;
+  color: #65676b;
+}
+
+.vazio p {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.vazio small {
+  font-size: 13px;
+  color: #8a8d91;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #dddfe2;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+thead {
+  background: #f5f6f7;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dddfe2;
+}
+
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f2f5;
+  font-size: 14px;
+  color: #1c1e21;
+}
+
+tbody tr:hover {
+  background: #f8f9fa;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tipo-badge {
+  background: #e7f3ff;
+  color: #0066cc;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.empresa-col {
+  font-weight: 500;
+  color: #007bff;
+}
+
+.periodo {
+  font-size: 12px;
+  color: #495057;
+  white-space: nowrap;
+}
+
+.sem-periodo {
+  color: #adb5bd;
+}
+
+.badge {
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-ok {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge-erro {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Botões de Ação */
+.acoes-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-editar,
+.btn-excluir {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.btn-editar {
+  background: #ffc107;
+}
+
+.btn-editar:hover:not(:disabled) {
+  background: #e0a800;
+  transform: scale(1.1);
+}
+
+.btn-editar:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-excluir {
+  background: #dc3545;
+}
+
+.btn-excluir:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+th:last-child,
+td:last-child {
+  text-align: center;
+  min-width: 120px;
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 12px;
+  }
+  
+  th, td {
+    padding: 8px;
+  }
+}

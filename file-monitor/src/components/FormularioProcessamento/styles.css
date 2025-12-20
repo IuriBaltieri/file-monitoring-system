@@ -1,0 +1,102 @@
+.formulario-container {
+  /* Herda estilos do .card */
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #1c1e21;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dddfe2;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+input[type="text"]:disabled,
+textarea:disabled {
+  background: #f5f6f7;
+  cursor: not-allowed;
+}
+
+textarea {
+  font-family: 'Courier New', Courier, monospace;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #65676b;
+}
+
+.exemplos {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.exemplos button {
+  flex: 1;
+  padding: 10px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.exemplos button:hover:not(:disabled) {
+  background: #218838;
+}
+
+.exemplos button:disabled {
+  background: #90a4ae;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-processar {
+  width: 100%;
+  padding: 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-processar:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.btn-processar:disabled {
+  background: #90a4ae;
+  cursor: not-allowed;
+}
