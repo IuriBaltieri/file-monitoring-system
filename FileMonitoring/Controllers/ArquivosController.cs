@@ -63,7 +63,20 @@ namespace FileMonitoring.Controllers
             try
             {
                 var arquivo = await _service.ProcessarArquivoAsync(request.Conteudo, request.NomeArquivo);
-                return Ok(arquivo);
+
+                if (arquivo.Status == "Não Recepcionado")
+                {
+                    return Ok(new
+                    {
+                        arquivo = arquivo,
+                        warning = $"Arquivo processado mas não recepcionado por motivo de duplicidade. " +
+                                 $"Já existe um arquivo com os mesmos dados: Empresa={arquivo.Empresa}, " +
+                                 $"Estabelecimento={arquivo.Estabelecimento}, Data={arquivo.DataProcessamento:dd/MM/yyyy}, " +
+                                 $"Sequência={arquivo.Sequencia}"
+                    });
+                }
+
+                return Ok(new { arquivo = arquivo });
             }
             catch (ArgumentException ex)
             {

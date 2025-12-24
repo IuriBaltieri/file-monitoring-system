@@ -136,7 +136,7 @@ namespace FileMonitoring.Services
 
         private Arquivo ProcessarTipo0(string linha)
         {
-            ValidarTamanhoMinimo(linha, 43, "tipo 0");
+            ValidarTamanhoExato(linha, 50, "tipo 0");
 
             try
             {
@@ -148,7 +148,7 @@ namespace FileMonitoring.Services
                     PeriodoInicial = ParsearData(linha, 19, 8),
                     PeriodoFinal = ParsearData(linha, 27, 8),
                     Sequencia = ExtrairCampo(linha, 35, 7),
-                    Empresa = ExtrairCampoAteFinal(linha, 42)
+                    Empresa = ExtrairCampo(linha, 42, 8)
                 };
             }
             catch (Exception ex)
@@ -159,28 +159,18 @@ namespace FileMonitoring.Services
 
         private Arquivo ProcessarTipo1(string linha)
         {
-            ValidarTamanhoMinimo(linha, 18, "tipo 1");
+            ValidarTamanhoExato(linha, 36, "tipo 1");
 
             try
             {
-                var arquivo = new Arquivo
+                return new Arquivo
                 {
                     TipoRegistro = 1,
                     DataProcessamento = ParsearData(linha, 1, 8),
-                    Estabelecimento = ExtrairCampo(linha, 9, 8)
+                    Estabelecimento = ExtrairCampo(linha, 9, 8),
+                    Empresa = ExtrairCampo(linha, 17, 12),
+                    Sequencia = ExtrairCampo(linha, 29, 7)
                 };
-
-                if (linha.Length >= 29)
-                {
-                    arquivo.Empresa = ExtrairCampo(linha, 17, 12);
-                    arquivo.Sequencia = ExtrairCampoAteFinal(linha, 29);
-                }
-                else
-                {
-                    arquivo.Empresa = ExtrairCampoAteFinal(linha, 17);
-                }
-
-                return arquivo;
             }
             catch (Exception ex)
             {
@@ -188,12 +178,12 @@ namespace FileMonitoring.Services
             }
         }
 
-        private void ValidarTamanhoMinimo(string linha, int tamanhoMinimo, string tipoLayout)
+        private void ValidarTamanhoExato(string linha, int tamanhoEsperado, string tipoLayout)
         {
-            if (linha.Length < tamanhoMinimo)
+            if (linha.Length != tamanhoEsperado)
             {
                 throw new FormatException(
-                    $"Layout {tipoLayout} inválido. Tamanho mínimo: {tamanhoMinimo}, recebido: {linha.Length}");
+                    $"Layout {tipoLayout} inválido. Tamanho esperado: {tamanhoEsperado} caracteres, recebido: {linha.Length} caracteres");
             }
         }
 
@@ -231,8 +221,12 @@ namespace FileMonitoring.Services
             if (jaExiste)
             {
                 arquivo.Status = "Não Recepcionado";
-                _logger.LogWarning("Arquivo duplicado: Empresa={Empresa}, Estabelecimento={Estabelecimento}, Sequencia={Sequencia}",
-                    arquivo.Empresa, arquivo.Estabelecimento, arquivo.Sequencia);
+
+                _logger.LogWarning(
+                    "Arquivo processado mas não recepcionado por motivo de duplicidade. " +
+                    "Já existe um arquivo com os mesmos dados: Empresa={Empresa}, " +
+                    "Estabelecimento={Estabelecimento}, Data={DataProcessamento}, Sequência={Sequencia}",
+                    arquivo.Empresa, arquivo.Estabelecimento, arquivo.DataProcessamento.ToString("dd/MM/yyyy"), arquivo.Sequencia);
             }
         }
 

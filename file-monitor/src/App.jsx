@@ -12,6 +12,7 @@ function App() {
   const [loadingDados, setLoadingDados] = useState(true);
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
+  const [warning, setWarning] = useState('');
   const [editandoId, setEditandoId] = useState(null);
 
   useEffect(() => {
@@ -40,8 +41,14 @@ function App() {
     limparMensagens();
 
     try {
-      await arquivosApi.processar(conteudo, nomeArquivo);
-      mostrarSucesso('Arquivo processado com sucesso!');
+      const resultado = await arquivosApi.processar(conteudo, nomeArquivo);
+
+      if (resultado.warning) {
+        mostrarWarning(resultado.warning);
+      } else {
+        mostrarSucesso('Arquivo processado e recepcionado com sucesso!');
+      }
+
       carregarDados();
     } catch (err) {
       mostrarErro(err.message);
@@ -89,9 +96,15 @@ function App() {
     setTimeout(() => setSucesso(''), 3000);
   };
 
+  const mostrarWarning = (mensagem) => {
+    setWarning(mensagem);
+    setTimeout(() => setWarning(''), 6000);
+  };
+
   const limparMensagens = () => {
     setErro('');
     setSucesso('');
+    setWarning('');
   };
 
   if (loadingDados) {
@@ -115,6 +128,7 @@ function App() {
       <div className="container">
         {erro && <div className="alert alert-erro global-alert">❌ {erro}</div>}
         {sucesso && <div className="alert alert-sucesso global-alert">✅ {sucesso}</div>}
+        {warning && <div className="alert alert-warning global-alert">⚠️ {warning}</div>}
 
         <div className="grid">
           <div className="card">
@@ -127,7 +141,7 @@ function App() {
         </div>
 
         <div className="card">
-          <TabelaArquivos 
+          <TabelaArquivos
             arquivos={arquivos}
             onAlterarStatus={alternarStatus}
             onExcluir={excluir}
